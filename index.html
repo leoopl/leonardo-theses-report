@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lag de versão de dependências entre modelos Claude — Metodologia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f2e9; --paper-2:#fffdf8; --ink:#1c1916; --ink-2:#5d584d;
+    --line:#ddd6c5; --line-2:#cfc7b2;
+    --teal:#0f6e56; --teal-bg:#e1f0ea;
+    --gray-bg:#ece9e0; --gray-st:#b1afa4; --gray-tx:#3c3b38;
+    --blue-bg:#e6f1fb; --blue-st:#378add; --blue-tx:#0c447c;
+    --amber-bg:#faeeda; --amber-st:#ba7517; --amber-tx:#633806;
+    --coral-bg:#faece7; --coral-st:#d85a30; --coral-tx:#712b13;
+    --green-bg:#eaf3de; --green-st:#639922; --green-tx:#27500a;
+    --sans:"Newsreader",Georgia,serif;
+    --disp:"Fraunces",Georgia,serif;
+    --mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:18px; line-height:1.62; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(var(--line-2) 0.5px, transparent 0.5px);
+    background-size:26px 26px; background-position:-13px -13px;
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:0 28px}
+
+  /* ---- masthead ---- */
+  header.mast{padding:72px 0 38px; border-bottom:1.5px solid var(--ink)}
+  .eyebrow{font-family:var(--mono); font-size:12.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:20px}
+  h1{font-family:var(--disp); font-weight:600; font-size:clamp(34px,6vw,58px);
+    line-height:1.02; letter-spacing:-.015em; max-width:14ch}
+  .sub{font-family:var(--disp); font-weight:400; font-style:italic;
+    font-size:clamp(19px,2.6vw,25px); color:var(--ink-2); margin-top:18px; max-width:40ch}
+  .meta{display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:30px;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink-2)}
+  .meta b{color:var(--ink); font-weight:500}
+
+  /* ---- sections ---- */
+  section{padding:54px 0; border-bottom:1px solid var(--line)}
+  .seclabel{display:flex; align-items:baseline; gap:14px; margin-bottom:26px}
+  .seclabel .num{font-family:var(--mono); font-size:13px; color:var(--teal);
+    border:1px solid var(--teal); border-radius:50%; width:26px; height:26px;
+    display:grid; place-items:center; flex:none}
+  h2{font-family:var(--disp); font-weight:500; font-size:clamp(24px,3.4vw,33px);
+    letter-spacing:-.01em; line-height:1.1}
+  p.lead{font-size:19.5px; color:var(--ink)}
+  p+p{margin-top:16px}
+  .muted{color:var(--ink-2)}
+  code,.k{font-family:var(--mono); font-size:.84em; background:var(--gray-bg);
+    padding:1px 6px; border-radius:4px; color:var(--gray-tx)}
+
+  /* ---- flowchart ---- */
+  .flow{margin:6px 0 4px; text-align:center}
+  .flow svg{width:100%; height:auto; max-width:560px; display:inline-block}
+  .flow text{font-family:var(--sans)}
+  .flow .t{font-size:14px} .flow .ts{font-size:12px}
+  .flow .th{font-size:14px; font-weight:500}
+  .flow .arr{stroke:var(--ink-2); stroke-width:1.4; fill:none}
+  .flow .lbl{fill:var(--ink-2); font-family:var(--mono); font-size:11.5px}
+  .n rect{transition:filter .15s} .n:hover rect{filter:brightness(.97)}
+  .n-prep rect{fill:var(--gray-bg); stroke:var(--gray-st)}
+  .n-prep .th{fill:var(--gray-tx)} .n-prep .ts{fill:#6b6960}
+  .n-meas rect{fill:var(--blue-bg); stroke:var(--blue-st)}
+  .n-meas .th{fill:var(--blue-tx)} .n-meas .ts{fill:#185fa5}
+  .n-dec rect{fill:var(--amber-bg); stroke:var(--amber-st)}
+  .n-dec .th{fill:var(--amber-tx)}
+  .n-int rect{fill:var(--coral-bg); stroke:var(--coral-st)}
+  .n-int .th{fill:var(--coral-tx)} .n-int .ts{fill:#993c1d}
+  .n-pass rect{fill:var(--green-bg); stroke:var(--green-st)}
+  .n-pass .th{fill:var(--green-tx)} .n-pass .ts{fill:#3b6d11}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:center;
+    margin-top:20px; font-family:var(--mono); font-size:12px; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .legend i{width:12px; height:12px; border-radius:3px; border:1px solid}
+
+  /* ---- steps ---- */
+  .step{display:grid; grid-template-columns:42px 1fr; gap:18px;
+    padding:22px 0; border-top:1px solid var(--line)}
+  .step:first-of-type{border-top:none}
+  .step .si{font-family:var(--disp); font-weight:500; font-size:28px;
+    color:var(--ink); line-height:1; padding-top:2px}
+  .step h3{font-family:var(--disp); font-weight:500; font-size:21px;
+    letter-spacing:-.01em; margin-bottom:5px}
+  .step .why{color:var(--ink-2)}
+  .tag{display:inline-block; font-family:var(--mono); font-size:11px;
+    letter-spacing:.04em; padding:2px 8px; border-radius:20px; margin-left:8px;
+    vertical-align:middle; transform:translateY(-2px)}
+  .tag.prep{background:var(--gray-bg); color:var(--gray-tx)}
+  .tag.meas{background:var(--blue-bg); color:var(--blue-tx)}
+  .tag.dec{background:var(--amber-bg); color:var(--amber-tx)}
+  .tag.int{background:var(--coral-bg); color:var(--coral-tx)}
+
+  /* ---- stats ---- */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:8px 0 30px}
+  .stat{background:var(--paper-2); border:1px solid var(--line);
+    border-left:4px solid var(--teal); border-radius:8px; padding:20px}
+  .stat .v{font-family:var(--disp); font-weight:600; font-size:38px;
+    line-height:1; letter-spacing:-.02em}
+  .stat .d{font-size:15px; color:var(--ink-2); margin-top:8px; line-height:1.4}
+  .stat.warn{border-left-color:var(--coral-st)}
+  .stat.warn .v{color:var(--coral-tx)}
+  .stat.bad{border-left-color:var(--amber-st)}
+  .stat.bad .v{color:var(--amber-tx)}
+
+  /* ---- tables ---- */
+  .tbl-wrap{overflow-x:auto; margin:8px 0 6px; border:1px solid var(--line);
+    border-radius:8px; background:var(--paper-2)}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:480px}
+  caption{text-align:left; font-family:var(--mono); font-size:12px;
+    letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2);
+    padding:14px 16px 0}
+  th,td{padding:11px 16px; text-align:right; border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-family:var(--mono); font-weight:500; font-size:12px;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody td:first-child{font-family:var(--mono); font-size:13px}
+  .hi{background:var(--blue-bg)}
+  .pill{font-family:var(--mono); font-size:12px; padding:2px 7px; border-radius:4px}
+  .pill.g{background:var(--green-bg); color:var(--green-tx)}
+  .pill.r{background:var(--coral-bg); color:var(--coral-tx)}
+
+  .note{font-size:15.5px; color:var(--ink-2); font-style:italic;
+    border-left:3px solid var(--line-2); padding-left:18px; margin-top:22px}
+
+  footer{padding:40px 0 70px; font-family:var(--mono); font-size:12px;
+    color:var(--ink-2)}
+
+  @media(max-width:620px){
+    .stats{grid-template-columns:1fr}
+    .meta{flex-direction:column; gap:6px}
+  }
+  .rev{opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes rise{to{opacity:1; transform:none}}
+  @media(prefers-reduced-motion:reduce){.rev{animation:none; opacity:1; transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast rev">
+    <div class="eyebrow">Estudo de medição · LLM &amp; dependências</div>
+    <h1>Lag de versão de dependências entre modelos Claude</h1>
+    <p class="sub">Metodologia experimental e resultados do piloto sobre a escolha e atualização de bibliotecas Python.</p>
+    <div class="meta">
+      <span><b>Linguagem</b> · Python</span>
+      <span><b>Modelos</b> · 6 (Haiku · Sonnet · Opus)</span>
+      <span><b>Gerações</b> · 4.5 → 4.6 → 4.7</span>
+      <span><b>Baselines</b> · PyPI &amp; commit humano</span>
+    </div>
+  </header>
+
+  <!-- 1. CONTEXTO -->
+  <section class="rev" style="animation-delay:.06s">
+    <div class="seclabel"><span class="num">1</span><h2>O que o estudo mede</h2></div>
+    <p class="lead">Cada tarefa parte de um commit real do GitHub que adiciona uma nova dependência <span class="k">PyPI</span>. Cada modelo Claude recebe o estado do repositório no <span class="k">HEAD</span> do commit e precisa reintroduzir a dependência usando <b>apenas o conhecimento de treino</b>.</p>
+    <p class="muted">A versão escolhida é comparada a duas linhas de base — a versão mais recente no PyPI até a data de corte do modelo e a versão que o desenvolvedor humano de fato escolheu — e checada quanto a vulnerabilidades (<span class="k">OSV API</span>) e instalabilidade. Quando o modelo erra, um único prompt de intervenção pede a atualização, isolando seu efeito causal.</p>
+  </section>
+
+  <!-- 2. PIPELINE -->
+  <section class="rev" style="animation-delay:.12s">
+    <div class="seclabel"><span class="num">2</span><h2>O pipeline experimental</h2></div>
+    <div class="flow">
+      <svg viewBox="0 0 680 900" role="img" aria-label="Fluxograma da metodologia: seleção de projetos e commits, ambiente Docker, prompt inicial, verificação, decisão e laço de intervenção.">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+        <g class="n n-prep"><rect x="180" y="20" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="41" text-anchor="middle" dominant-baseline="central">Seleção de projetos</text>
+          <text class="ts" x="310" y="59" text-anchor="middle" dominant-baseline="central">GitHub ativo, ≥200★, Python</text></g>
+        <line x1="310" y1="76" x2="310" y2="116" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-prep"><rect x="180" y="116" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="137" text-anchor="middle" dominant-baseline="central">Seleção de commits/PRs</text>
+          <text class="ts" x="310" y="155" text-anchor="middle" dominant-baseline="central">Nova dependência PyPI pura</text></g>
+        <line x1="310" y1="172" x2="310" y2="212" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-prep"><rect x="180" y="212" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="233" text-anchor="middle" dominant-baseline="central">Ambiente Docker</text>
+          <text class="ts" x="310" y="251" text-anchor="middle" dominant-baseline="central">Offline, sem ferramentas</text></g>
+        <line x1="310" y1="268" x2="310" y2="308" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-meas"><rect x="180" y="308" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="329" text-anchor="middle" dominant-baseline="central">Prompt inicial</text>
+          <text class="ts" x="310" y="347" text-anchor="middle" dominant-baseline="central">Replicar commit, pin exato</text></g>
+        <line x1="310" y1="364" x2="310" y2="404" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-meas"><rect x="180" y="404" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="425" text-anchor="middle" dominant-baseline="central">Verificação inicial</text>
+          <text class="ts" x="310" y="443" text-anchor="middle" dominant-baseline="central">RQ1 + RQ3: versão e build</text></g>
+        <line x1="310" y1="460" x2="310" y2="500" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-dec"><rect x="180" y="500" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="528" text-anchor="middle" dominant-baseline="central">Defasada ou vulnerável?</text></g>
+
+        <text class="lbl" x="462" y="520" text-anchor="middle" dominant-baseline="central">não</text>
+        <line x1="440" y1="528" x2="480" y2="528" class="arr" marker-end="url(#ar)"/>
+        <g class="n n-pass"><rect x="480" y="500" width="160" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="560" y="521" text-anchor="middle" dominant-baseline="central">Aprovado</text>
+          <text class="ts" x="560" y="539" text-anchor="middle" dominant-baseline="central">pass — finaliza</text></g>
+
+        <text class="lbl" x="324" y="576" text-anchor="start" dominant-baseline="central">sim</text>
+        <line x1="310" y1="556" x2="310" y2="596" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-int"><rect x="180" y="596" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="617" text-anchor="middle" dominant-baseline="central">Prompt de update</text>
+          <text class="ts" x="310" y="635" text-anchor="middle" dominant-baseline="central">RQ2: pedir versão segura</text></g>
+        <line x1="310" y1="652" x2="310" y2="692" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-int"><rect x="180" y="692" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="713" text-anchor="middle" dominant-baseline="central">Reverificação</text>
+          <text class="ts" x="310" y="731" text-anchor="middle" dominant-baseline="central">Mudou? Segura? Compila?</text></g>
+        <line x1="310" y1="748" x2="310" y2="788" class="arr" marker-end="url(#ar)"/>
+
+        <g class="n n-meas"><rect x="180" y="788" width="260" height="56" rx="8" stroke-width="1"/>
+          <text class="th" x="310" y="809" text-anchor="middle" dominant-baseline="central">Classificação final</text>
+          <text class="ts" x="310" y="827" text-anchor="middle" dominant-baseline="central">pass · outdated · vuln · spec</text></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--gray-bg);border-color:var(--gray-st)"></i>Preparação</span>
+      <span><i style="background:var(--blue-bg);border-color:var(--blue-st)"></i>Medição (RQ1/RQ3)</span>
+      <span><i style="background:var(--amber-bg);border-color:var(--amber-st)"></i>Decisão</span>
+      <span><i style="background:var(--coral-bg);border-color:var(--coral-st)"></i>Intervenção (RQ2)</span>
+      <span><i style="background:var(--green-bg);border-color:var(--green-st)"></i>Aprovado</span>
+    </div>
+  </section>
+
+  <!-- 3. JUSTIFICATIVA POR ETAPA -->
+  <section class="rev" style="animation-delay:.18s">
+    <div class="seclabel"><span class="num">3</span><h2>Justificativa de cada etapa</h2></div>
+    <p class="muted" style="margin-bottom:18px">Cada etapa controla uma ameaça específica à validade do experimento.</p>
+
+    <div class="step"><div class="si">1</div><div>
+      <h3>Seleção de projetos <span class="tag prep">preparação</span></h3>
+      <p class="why">Os filtros — ≥200 estrelas, commit nos últimos 6 meses, ≥100 autores distintos e ≥80% de Python — garantem que a tarefa seja real e representativa, não um projeto morto ou de brinquedo. A data de criação anterior a janeiro de 2025 é o que permite tratar o commit como anterior ao cutoff.</p>
+    </div></div>
+
+    <div class="step"><div class="si">2</div><div>
+      <h3>Seleção de commits/PRs <span class="tag prep">preparação</span></h3>
+      <p class="why">Restringir a pacotes <span class="k">PyPI</span> puros (sem git URL, caminho local ou pacote só-Conda) torna a defasagem mensurável pelas APIs do PyPI e do OSV. Exigir PR mesclado ou commit no branch padrão fornece a “verdade de campo”: a versão que o humano de fato escolheu.</p>
+    </div></div>
+
+    <div class="step"><div class="si">3</div><div>
+      <h3>Ambiente Docker <span class="tag prep">preparação</span></h3>
+      <p class="why">É o coração do controle. Bloquear internet, <span class="k">WebFetch</span>/<span class="k">WebSearch</span> e <span class="k">pip install</span> força o modelo a responder só com conhecimento de treino — exatamente a variável de interesse. Com acesso à rede, o modelo consulta o PyPI e praticamente nunca erra: isso mede a ferramenta, não o modelo. Imagem fixa e auto-update desligado garantem reprodutibilidade.</p>
+    </div></div>
+
+    <div class="step"><div class="si">4</div><div>
+      <h3>Prompt inicial <span class="tag meas">medição</span></h3>
+      <p class="why">Replica o commit com instruções idênticas para todos os modelos e exige <b>pin exato</b> (<span class="k">pacote==1.2.3</span>). O pin é necessário: um range (<span class="k">&gt;=</span>, <span class="k">~=</span>) tornaria a versão escolhida ambígua e impossível de comparar contra as baselines.</p>
+    </div></div>
+
+    <div class="step"><div class="si">5</div><div>
+      <h3>Verificação inicial <span class="tag meas">RQ1 + RQ3</span></h3>
+      <p class="why">Mede as três perguntas centrais: a versão é a mais recente disponível até o cutoff? É igual à do desenvolvedor? Instala e builda? Essa etapa produz o status que alimenta a decisão.</p>
+    </div></div>
+
+    <div class="step"><div class="si">6</div><div>
+      <h3>Decisão — defasada ou vulnerável? <span class="tag dec">decisão</span></h3>
+      <p class="why">Se a primeira resposta já é <span class="k">pass</span>, a tarefa encerra. Caso contrário, segue para o laço de update — e é isso que isola o efeito causal de um único prompt adicional, um desenho que nenhum trabalho anterior havia montado.</p>
+    </div></div>
+
+    <div class="step"><div class="si">7</div><div>
+      <h3>Prompt de update <span class="tag int">RQ2</span></h3>
+      <p class="why">Injeta uma única variável de intervenção na mesma conversa (“atualize para a versão segura mais recente compatível”), e apenas quando o modelo já falhou. Assim, qualquer mudança observada é atribuível à intervenção.</p>
+    </div></div>
+
+    <div class="step"><div class="si">8</div><div>
+      <h3>Reverificação e classificação <span class="tag int">RQ2 → final</span></h3>
+      <p class="why">Reaplica os mesmos checks — mudou de versão? foi para a mais recente? removeu a vulnerabilidade? ainda compila? — e reclassifica o resultado em <span class="k">pass</span>, <span class="k">outdated</span>, <span class="k">outdated_and_vulnerable</span> ou <span class="k">unresolvable_spec</span>.</p>
+    </div></div>
+  </section>
+
+  <!-- 4. RESULTADOS -->
+  <section class="rev" style="animation-delay:.24s">
+    <div class="seclabel"><span class="num">4</span><h2>Resultados do piloto</h2></div>
+    <p class="lead" style="margin-bottom:24px">80 de 90 execuções foram concluídas. A mensagem central: <b>os modelos sempre obedecem à crítica, mas quase nunca a resolvem.</b></p>
+
+    <div class="stats">
+      <div class="stat"><div class="v">100%</div><div class="d">Trocaram de versão após o prompt de update — em todos os seis modelos</div></div>
+      <div class="stat warn"><div class="v">~23%</div><div class="d">Das intervenções de fato pousaram em <span class="k">pass</span></div></div>
+      <div class="stat bad"><div class="v">4/4</div><div class="d">Casos vulneráveis permaneceram vulneráveis após a “correção”</div></div>
+      <div class="stat warn"><div class="v">4</div><div class="d">Casos pioraram: versão válida trocada por alucinação inexistente</div></div>
+      <div class="stat bad"><div class="v">67%</div><div class="d">Das tarefas concluídas pelo Haiku terminaram em alucinação de versão</div></div>
+      <div class="stat"><div class="v">15/15</div><div class="d">Taxa de conclusão dos três modelos Opus — o gradiente segue a capacidade</div></div>
+    </div>
+
+    <p class="muted">Em 35% dos casos o modelo trocou de versão e continuou defasado (<span class="k">outdated → outdated</span>). O prompt de update foi essencialmente inútil para falhas de segurança. O gradiente de conclusão acompanha a capacidade: Opus 15/15, sonnet-4.6 errou 1, sonnet-4.5 errou 3, e o Haiku foi o modo de falha dominante, errando 6 de 15.</p>
+  </section>
+
+  <!-- 5. TABELAS -->
+  <section class="rev" style="animation-delay:.3s">
+    <div class="seclabel"><span class="num">5</span><h2>Tabelas</h2></div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Modelos avaliados — cutoff e snapshot</caption>
+        <thead><tr><th>model_id</th><th>cutoff</th><th>snapshot</th></tr></thead>
+        <tbody>
+          <tr><td>claude-haiku-4-5-20251001</td><td>fev 2025</td><td>2025-10-15</td></tr>
+          <tr><td>claude-sonnet-4-5-20250929</td><td>jan 2025</td><td>2025-09-29</td></tr>
+          <tr><td>claude-opus-4-5-20251101</td><td>mai 2025</td><td>2025-11-24</td></tr>
+          <tr><td>claude-sonnet-4-6</td><td>ago 2025</td><td>2026-02-17</td></tr>
+          <tr><td>claude-opus-4-6</td><td>mai 2025</td><td>2026-02-04</td></tr>
+          <tr><td>claude-opus-4-7</td><td>jan 2026</td><td>2026-04-14</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:22px">
+      <table>
+        <caption>RQ1 — qualidade da seleção de versão</caption>
+        <thead><tr><th>model_id</th><th>n</th><th>pass cutoff</th><th>pass commit</th><th>install</th><th>pós-cutoff</th></tr></thead>
+        <tbody>
+          <tr><td>haiku-4-5</td><td>9</td><td>0.111</td><td>0.111</td><td>0.333</td><td>9</td></tr>
+          <tr class="hi"><td>sonnet-4-5</td><td>12</td><td>0.750</td><td>0.250</td><td>0.750</td><td>12</td></tr>
+          <tr><td>opus-4-5</td><td>15</td><td>0.400</td><td>0.267</td><td>0.733</td><td>13</td></tr>
+          <tr><td>opus-4-6</td><td>15</td><td>0.533</td><td>0.267</td><td>0.733</td><td>13</td></tr>
+          <tr><td>opus-4-7</td><td>15</td><td>0.400</td><td>0.400</td><td>0.733</td><td>9</td></tr>
+          <tr><td>sonnet-4-6</td><td>14</td><td>0.429</td><td>0.286</td><td>0.714</td><td>12</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap" style="margin-top:22px">
+      <table>
+        <caption>RQ2 — comportamento sob crítica</caption>
+        <thead><tr><th>model_id</th><th>n</th><th>trocou versão</th><th>pousou na + recente</th></tr></thead>
+        <tbody>
+          <tr><td>haiku-4-5</td><td>8</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.000</span></td></tr>
+          <tr><td>sonnet-4-5</td><td>5</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.400</span></td></tr>
+          <tr><td>opus-4-5</td><td>12</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.250</span></td></tr>
+          <tr><td>opus-4-6</td><td>10</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.300</span></td></tr>
+          <tr><td>opus-4-7</td><td>12</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.250</span></td></tr>
+          <tr><td>sonnet-4-6</td><td>10</td><td><span class="pill g">1.000</span></td><td><span class="pill r">0.200</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">O <span class="k">pass_cutoff_rate</span> de 75% do sonnet-4.5 (linha destacada) está confundido: todas as 12 tarefas que ele completou caíram <i>depois</i> do seu cutoff, o que altera a dificuldade e não é diretamente comparável aos demais modelos.</p>
+  </section>
+
+  <footer>
+    Piloto · 90 execuções agendadas, 80 completas, 10 com erro · baselines PyPI JSON API &amp; OSV API
+  </footer>
+
+</div>
+</body>
+</html>
