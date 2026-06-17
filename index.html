@@ -320,6 +320,10 @@
       .stage.ana .dot {
         background: var(--ink);
       }
+      .stage.rev .dot {
+        background: var(--gold);
+        font-size: 24px;
+      }
       .line-down {
         width: 2px;
         flex: 1 1 auto;
@@ -472,6 +476,141 @@
       }
       .frow.ok .code {
         background: var(--pine);
+      }
+
+      /* ── Defesa em profundidade ─────────────── */
+      .metodo-detail {
+        margin-top: 18px;
+      }
+      .panel p.lead {
+        font-size: 13px;
+        color: var(--ink);
+        margin: 0 0 14px;
+      }
+      .deflist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 9px;
+      }
+      .deflist li {
+        display: flex;
+        gap: 11px;
+        align-items: flex-start;
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .deflist li b {
+        font-weight: 600;
+      }
+      .deflist .n {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--pine-tint);
+        color: var(--pine);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1px;
+      }
+
+      /* ── Tabelas de resultados ──────────────── */
+      .res-block {
+        margin-bottom: 30px;
+      }
+      .res-block > h3 {
+        font-family: "Newsreader", serif;
+        font-size: 20px;
+        margin: 0 0 4px;
+      }
+      .res-block > p.sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0 0 14px;
+        max-width: 80ch;
+      }
+      .rtable {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+      table.data {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12.5px;
+      }
+      table.data th,
+      table.data td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      table.data thead th {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+        background: #eef0ea;
+        position: sticky;
+        top: 0;
+      }
+      table.data td.num,
+      table.data th.num {
+        text-align: right;
+        font-family: "IBM Plex Mono", monospace;
+      }
+      table.data td.mdl {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11.5px;
+      }
+      table.data tbody tr:last-child td {
+        border-bottom: none;
+      }
+      table.data tbody tr:hover {
+        background: var(--paper);
+      }
+      table.data tr.tot td {
+        font-weight: 600;
+        background: var(--pine-tint);
+      }
+      .cap {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 8px 2px 0;
+      }
+
+      /* ── Destaque / limitação ───────────────── */
+      .takeaway {
+        border-left: 4px solid var(--pine);
+        background: var(--pine-tint);
+        border-radius: 0 10px 10px 0;
+        padding: 12px 16px;
+        margin: 0 0 16px;
+        font-size: 13.5px;
+        color: var(--ink);
+      }
+      .takeaway.warn {
+        border-left-color: var(--clay);
+        background: var(--clay-tint);
+      }
+      .takeaway.head {
+        border-left-color: var(--gold);
+        background: #f7efda;
+      }
+      .takeaway b {
+        font-weight: 600;
       }
 
       /* ── Footer ─────────────────────────────── */
@@ -657,15 +796,15 @@
             <span class="tag">RQ1</span>
             <h3>Perfil de correção da seleção de versão</h3>
             <p>
-              Dado o repositório no <span class="mono">parent_sha</span> de um
-              commit que introduz a dependência, qual o perfil de correção da
-              versão fixada?
+              Dado um repositório no estado anterior à introdução de uma
+              dependência, e instruído a usar só o conhecimento de treinamento,
+              qual é o perfil de correção da versão que o modelo fixa?
             </p>
             <ul>
-              <li>Resolve, instala e importa</li>
-              <li>Seguro no <em>cutoff</em> e seguro hoje</li>
-              <li>Defasagem até a mais recente pré-cutoff</li>
-              <li>Relação com o pin do desenvolvedor</li>
+              <li><b>1.1</b> Resolve, instala e importa</li>
+              <li><b>1.2</b> Seguro no <em>cutoff</em> e seguro hoje</li>
+              <li><b>1.3</b> Defasagem até a mais recente pré-cutoff</li>
+              <li><b>1.4</b> Relação com o pin do desenvolvedor</li>
             </ul>
           </article>
           <article class="rq r2">
@@ -716,24 +855,26 @@
             <p class="k">Ancoragem real</p>
             <p>
               Commits reais de introdução de dependência em repositórios OSS
-              populares; metadados removidos.
-              <span>Validade ecológica acima de trechos sintéticos.</span>
+              populares; histórico Git removido.
+              <span>Snapshot no <span class="mono">parent_sha</span></span>
             </p>
           </div>
           <div class="pcard">
             <p class="k">Isolamento imposto</p>
             <p>
-              Sem rede no passo de escolha; ferramentas de shell removidas;
-              egresso auditado.
-              <span>Mede conhecimento paramétrico, não busca.</span>
+              sem rede aberta, sem terminal (Bash) e sem web; as respostas são
+              fisicamente removidas do projeto.
+              <span>Mede conhecimento paramétrico, não busca na web.</span>
             </p>
           </div>
           <div class="pcard">
-            <p class="k">Repetição</p>
+            <p class="k">Repetição · k = 3 + natural</p>
             <p>
-              k ≥ 3–5 amostras por célula (tarefa, modelo).
+              k = nº de repetições independentes por célula (âncora × modelo): k
+              = 3 na forçada, mais 1 execução natural exploratória.
               <span
-                >Separa comportamento do modelo do ruído de decodificação.</span
+                >Separa o comportamento do modelo do ruído de
+                decodificação.</span
               >
             </p>
           </div>
@@ -746,6 +887,97 @@
             </p>
           </div>
         </div>
+
+        <!-- <div class="metodo-detail duo">
+          <div class="panel">
+            <h3>Isolamento: defesa em profundidade</h3>
+            <p class="lead">
+              A premissa da RQ1 é que o modelo decide a versão usando só o que
+              aprendeu no treino. Para que isso seja verdade — e não dependa da
+              boa vontade do modelo — sete barreiras independentes fecham toda
+              porta de vazamento.
+            </p>
+            <ul class="deflist">
+              <li>
+                <span class="n">1</span>
+                <span
+                  ><b>Histórico Git removido</b> do snapshot — a versão do
+                  commit seguinte não está lá para ser lida.</span
+                >
+              </li>
+              <li>
+                <span class="n">2</span>
+                <span
+                  ><b>Oráculo e testes guardados fora</b> do snapshot;
+                  <span class="mono">.claudeignore</span> esconde testes, CI e
+                  documentação.</span
+                >
+              </li>
+              <li>
+                <span class="n">3</span>
+                <span
+                  ><b>Pin do desenvolvedor apagado</b> dos metadados antes de o
+                  modelo ver o diretório.</span
+                >
+              </li>
+              <li>
+                <span class="n">4</span>
+                <span
+                  ><b>Ambiente do processo zerado</b> (whitelist
+                  <span class="mono">env -i</span>) — o modelo nunca vê o
+                  cutoff, a condição, a crítica futura nem os metadados da
+                  tarefa.</span
+                >
+              </li>
+              <li>
+                <span class="n">5</span>
+                <span
+                  ><b>Ferramentas restritas</b> a Read/Edit/Write/Grep/Glob;
+                  terminal (Bash) e busca na web desligados.</span
+                >
+              </li>
+              <li>
+                <span class="n">6</span>
+                <span
+                  ><b>Dois proxies estáticos:</b> o do modelo libera só
+                  Anthropic, PyPI e OSV; o de execução libera só PyPI, arquivos
+                  e OSV — <b>nenhum acesso à Anthropic</b>.</span
+                >
+              </li>
+              <li>
+                <span class="n">7</span>
+                <span
+                  ><b>Auditoria post-hoc dos logs:</b> qualquer ferramenta
+                  proibida ou caminho fora de
+                  <span class="mono">/work</span> marca a execução como
+                  contaminada (marca pegajosa) e a exclui — exclusão
+                  pré-registrada.</span
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Repetição e condição natural</h3>
+            <p class="lead">
+              <b>O que é k.</b> É o número de repetições independentes de cada
+              célula (âncora × modelo): contêiner novo, conversa do zero, sem
+              memória compartilhada.
+            </p>
+            <p class="lead">
+              <b>Por que k = 3 na forçada.</b> Modelos são estocásticos — a
+              mesma pergunta pode dar respostas diferentes. Uma amostra só não
+              distingue o comportamento típico de um acaso. Três amostras medem
+              a variância dentro da célula, permitem o voto de maioria da RQ3 e
+              dão base às hipóteses.
+            </p>
+            <p class="lead" style="margin-bottom: 0">
+              <b>Condição natural (k = 1).</b> Uma execução exploratória por
+              célula em que o modelo versiona livremente — pin exato, faixa ou
+              sem restrição. É descritiva, não recebe crítica e nunca embasa um
+              teste formal.
+            </p>
+          </div>
+        </div> -->
       </section>
 
       <!-- ── PIPELINE ────────────────────────────────────── -->
@@ -770,16 +1002,20 @@
                 <span class="step-id">miner · MongoDB</span>
               </div>
               <p>
-                Streaming miner localiza repositórios elegíveis (≥200 estrelas,
-                ≥100 contribuidores, ≥60% Python, criados antes de 2025) e
-                commits que introduzem uma dependência pura-PyPI. Registra pin
-                humano, data e se o commit alterou testes.
+                <b>Repositórios.</b> ≥200 estrelas, ≥100 contribuidores,
+                atividade nos últimos 6 meses, &gt;60% de código Python, e que
+                <b>não</b> seja fork, arquivado nem template, criado antes de
+                jan/2025 (para que todos os modelos possam conhecê-lo).
+              </p>
+              <p>
+                <b>Commits/PRs.</b> fixam uma dependência pura-PyPI, foram
+                mergeados na branch padrão, citam a dependência no texto do
+                commit/PR e têm merge após jan/2020.
               </p>
               <div class="chips">
-                <span class="chip out">25 repositórios minerados</span
-                ><span class="chip out">pin do desenvolvedor</span
-                ><span class="chip new">flag de testes-no-commit</span
-                ><span class="chip new">elegibilidade por modelo</span>
+                <span class="chip out"
+                  >25 minerados → 14 usados · 36 âncoras</span
+                ><span class="chip new">flag de testes-no-commit</span>
               </div>
             </div>
           </div>
@@ -792,17 +1028,22 @@
             <div class="body">
               <div class="top">
                 <h4>Elicitação sob isolamento</h4>
-                <span class="step-id">Claude Code · contêiner</span>
+                <span class="step-id"
+                  >Claude Code 2.1.173 · contêiner de modelo · Python 3.13</span
+                >
               </div>
               <p>
-                Snapshot no <span class="mono">parent_sha</span>. O modelo
-                adiciona a dependência usando só conhecimento de treino. Duas
-                condições: <b>forçada</b> (pin exato) e <b>natural</b> (sem
-                exigir pin, observa propensão e forma).
+                O modelo adiciona a dependência
+                <b>usando só conhecimento de treino</b>. Cada âncora gera um
+                <b>prompt de entrada</b> (a intenção real do commit humano); a
+                ele se acopla, como prompt de sistema, uma das duas
+                <b>condições de elicitação</b>: <b>forçada</b> (exige pin exato)
+                e <b>natural</b> (versionamento livre — observa propensão e
+                forma).
               </p>
               <div class="chips">
-                <span class="chip">sem Bash no passo 1</span
-                ><span class="chip">egresso auditado</span
+                <span class="chip">isolamento imposto</span
+                ><span class="chip new">repetição (k=3)</span
                 ><span class="chip new">2 condições de elicitação</span
                 ><span class="chip rq">→ RQ1</span>
               </div>
@@ -822,14 +1063,16 @@
               <p>
                 Resolve o spec, computa a defasagem até a mais recente
                 pré-<em>cutoff</em>, checa OSV em dois recortes (até o
-                <em>cutoff</em> e hoje), compara com o pin humano. Faixas
-                resolvidas contra índice filtrado pela data do <em>cutoff</em>.
+                <em>cutoff</em> e hoje) e compara com o pin humano. Faixas são
+                resolvidas contra o índice filtrado pela data do
+                <em>cutoff</em>.
               </p>
               <div class="chips">
-                <span class="chip out">vetor multicritério</span
-                ><span class="chip new">OSV no-cutoff + hoje</span
-                ><span class="chip new">defasagem contínua</span
-                ><span class="chip rq">→ RQ1 / RQ3</span>
+                <span class="chip out">vetor multicritério</span>
+                <!-- <span class="chip">contêiner de modelo</span
+                ><span class="chip new">só metadados (não baixa)</span
+                ><span class="chip new">OSV no-cutoff + hoje</span> -->
+                <span class="chip rq">→ RQ1 / RQ3</span>
               </div>
             </div>
           </div>
@@ -842,19 +1085,19 @@
             <div class="body">
               <div class="top">
                 <h4>Instalação, conflito &amp; fecho transitivo</h4>
-                <span class="step-id">install_check · venv isolado</span>
+                <span class="step-id">runner · contêiner separado</span>
               </div>
               <p>
-                Instala o manifesto em venv limpo e importa o pacote. Registra
-                conflitos de resolução e roda OSV sobre o fecho transitivo.
-                Executado em contêiner dedicado para evitar as restrições
-                atuais. Nunca bloqueia o experimento — registra dados.
+                Instala o manifesto em venv limpo, importa o pacote, compara a
+                árvore de dependências com a do projeto-base (detecta conflitos
+                de resolução) e roda OSV sobre o fecho transitivo.
+                <b>Nunca decide</b>: sempre encerra com sucesso e só registra
+                dados.
               </p>
               <div class="chips">
                 <span class="chip out">instala + importa</span
-                ><span class="chip new">OSV transitivo</span
-                ><span class="chip new">contêiner dedicado</span
-                ><span class="chip rq">→ RQ1.3</span>
+                ><span class="chip new">Python 3.11 · sem Anthropic</span
+                ><span class="chip rq">→ RQ1.1</span>
               </div>
             </div>
           </div>
@@ -867,16 +1110,20 @@
             <div class="body">
               <div class="top">
                 <h4>Build &amp; teste em camadas</h4>
-                <span class="step-id">descritivo · não-gate</span>
+                <span class="step-id">descritivo · não decide</span>
               </div>
               <p>
-                Camada A: manifesto instala. Camada B: pacote-topo do projeto
-                importa. Camada C: comando de teste do projeto roda.
-                <b>Oráculo humano:</b> quando o commit alterou testes, esses
-                testes rodam contra o pin do modelo.
+                <b>Camada A:</b> o manifesto instala sem erro.
+                <b>Camada B:</b> o pacote principal do projeto consegue ser
+                importado. <b>Camada C:</b> o comando de teste do projeto roda.
+                Por cima de tudo, o <b>oráculo humano</b>: quando o commit
+                original acrescentou testes, esses mesmos testes — escritos pelo
+                autor humano para aquela dependência — rodam contra a versão que
+                o modelo escolheu. É a régua que transforma "string diferente"
+                em "comportamento verificável".
               </p>
               <div class="chips">
-                <span class="chip new">A / B / C</span
+                <span class="chip out">A / B / C</span
                 ><span class="chip new">oráculo de testes humano</span
                 ><span class="chip rq">→ RQ1.4</span>
               </div>
@@ -891,17 +1138,45 @@
             <div class="body">
               <div class="top">
                 <h4>Crítica &amp; reverificação</h4>
-                <span class="step-id">mesma sessão · replay</span>
+                <span class="step-id">mesma conversa · uma rodada</span>
               </div>
               <p>
-                Em vez de um prompt único, três condições de crítica
-                <b>coerentes com a classe de falha</b>: dúvida neutra, crítica
-                dirigida e crítica enganosa (sinaliza como errado um pin
-                correto). Reverifica com o mesmo vetor.
+                Confronta os resultados, enviando uma mensagem de crítica:
+                <b>dúvida neutra</b> (“tem certeza?”),
+                <b>crítica dirigida</b> (aponta falha real) e
+                <b>crítica enganosa</b> (acusa falsamente um acerto). A ideia é
+                separar <b>autocorreção genuína</b> (mudar porque percebeu o
+                erro) de <b>sycophancy</b> (mudar só porque foi questionado).
               </p>
               <div class="chips">
-                <span class="chip new">3 condições de crítica</span
-                ><span class="chip new">correção vs sycophancy</span
+                <span class="chip out">neutra · dirigida · enganosa</span
+                ><span class="chip new">autocorreção vs sycophancy</span
+                ><span class="chip rq">→ RQ2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage rev">
+            <div class="rail">
+              <div class="dot">↻</div>
+              <div class="line-down"></div>
+            </div>
+            <div class="body">
+              <div class="top">
+                <h4>Reverificação</h4>
+                <span class="step-id">só após crítica · paridade</span>
+              </div>
+              <p>
+                Exclusivo das execuções que <b>receberam crítica</b>: terminada a
+                resposta do modelo, as <b>Etapas 2 → 3 → 4</b> rodam <b>de
+                novo</b> sobre o estado final e o mesmo vetor de correção é
+                recomputado, <b>em paridade</b> com o estado do Passo 1. É assim
+                que se mede exatamente o que a crítica mudou — comparando duas
+                fotos do mesmo experimento, não medições de momentos diferentes.
+              </p>
+              <div class="chips">
+                <span class="chip out">repete Etapas 2 · 3 · 4</span
+                ><span class="chip new">estado final vs Passo 1</span
                 ><span class="chip rq">→ RQ2</span>
               </div>
             </div>
@@ -921,7 +1196,7 @@
                 comuns. Pré-registro depositado.
               </p>
               <div class="chips">
-                <span class="chip out">baselines (i)–(iii)</span
+                <span class="chip out">baselines (i)–(iv)</span
                 ><span class="chip out">tamanhos de efeito + IC</span
                 ><span class="chip new">pré-registro (OSF)</span>
               </div>
@@ -946,12 +1221,13 @@
             </p>
             <div class="vec">
               <div class="item">
-                <span
-                  ><b>resolvable</b><small>existe e o pip resolve</small></span
-                >
+                <span><b>resolvable</b><small>existe no PyPI</small></span>
               </div>
               <div class="item">
-                <span><b>installs</b><small>instala em venv limpo</small></span>
+                <span
+                  ><b>installs</b
+                  ><small>instala e importa em venv limpo</small></span
+                >
               </div>
               <div class="item">
                 <span><b>imports</b><small>o pacote importa</small></span>
@@ -1036,22 +1312,917 @@
         </div>
       </section>
 
+      <!-- ── RESULTADOS · VISÃO GERAL & QUALIDADE ────────── -->
+      <section id="exec">
+        <div class="sec-head">
+          <span class="sec-num">E</span>
+          <h2 class="sec-title">
+            Resultados — visão geral &amp; qualidade dos dados
+          </h2>
+          <span class="sec-sub">antes dos achados, a confiança</span>
+        </div>
+
+        <div class="takeaway">
+          <b>864 execuções</b> (36 âncoras × 6 modelos × [3 forçada + 1
+          natural]) → <b>848 incluídas</b> após excluir 16 contaminadas. 853
+          completas, 11 terminaram em erro. Esta seção mostra a qualidade dos
+          dados antes de qualquer resultado.
+        </div>
+
+        <div class="res-block">
+          <h3>Classes de falha</h3>
+          <p class="sub">
+            Veredito do verificador no Passo 1, sobre as <b>838 execuções com
+            veredito substantivo</b> (fora as contaminadas e os erros). "Pass" é
+            o melhor caso (resolve ∧ seguro ∧ é a mais recente pré-cutoff);
+            "outdated" é resolúvel e seguro, só não é a mais nova.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Significado</th>
+                  <th class="num">N</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Resolúvel e seguro, mas não é a mais recente (outdated)</td>
+                  <td class="num">552</td>
+                </tr>
+                <tr>
+                  <td>Desatualizado e com CVE até o cutoff</td>
+                  <td class="num">98</td>
+                </tr>
+                <tr>
+                  <td>Resolve ∧ seguro ∧ mais recente pré-cutoff (PASS)</td>
+                  <td class="num">96</td>
+                </tr>
+                <tr>
+                  <td>Pacote existe, mas a versão fixada é fantasma (irresolúvel)</td>
+                  <td class="num">59</td>
+                </tr>
+                <tr>
+                  <td>Nenhuma versão válida antes do cutoff</td>
+                  <td class="num">31</td>
+                </tr>
+                <tr>
+                  <td>Com CVE até o cutoff (sem desatualização)</td>
+                  <td class="num">2</td>
+                </tr>
+                <tr class="tot">
+                  <td>total</td>
+                  <td class="num">838</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Erros de execução</h3>
+          <p class="sub">
+            Os 11 erros são todos <span class="mono">missing_dep_json</span> — o
+            modelo encerrou sem produzir o arquivo de resposta. Concentram-se
+            nos modelos menores; <b>nenhum Opus errou</b>.
+          </p>
+          <div class="duo">
+            <div class="rtable">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th>Erro por modelo</th>
+                    <th class="num">n</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mdl">Sonnet 4.6</td>
+                    <td class="num">5</td>
+                  </tr>
+                  <tr>
+                    <td class="mdl">Haiku 4.5</td>
+                    <td class="num">3</td>
+                  </tr>
+                  <tr>
+                    <td class="mdl">Sonnet 4.5</td>
+                    <td class="num">3</td>
+                  </tr>
+                  <tr>
+                    <td class="mdl">Opus (4.5 / 4.6 / 4.7)</td>
+                    <td class="num">0</td>
+                  </tr>
+                  <tr class="tot">
+                    <td>total</td>
+                    <td class="num">11</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h3
+                style="
+                  font-family: 'Newsreader', serif;
+                  font-size: 17px;
+                  margin: 0 0 8px;
+                "
+              >
+                Concentração
+              </h3>
+              <p class="takeaway warn" style="margin: 0">
+                <b>8</b> dos 11 erros caem em apenas duas âncoras:
+                <b>5</b> em <b><i>core_bf2d40ad</i></b>
+                (<i>home-assistant/core</i>) e <b>3</b> em
+                <b><i>minds-platform_5c73a372</i></b> — sugerindo dificuldade
+                específica dessas âncoras (de repositórios grandes/complexos).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Contaminações &amp; estratos</h3>
+          <div class="takeaway warn">
+            <b>16 execuções contaminadas e excluídas</b> — padrão marcante:
+            <b>15 são do Sonnet 4.5</b>, que insistiu em chamar <b>Bash</b> no
+            Passo 1 (apesar da proibição e da ferramenta estar desligada); a 16ª
+            é do <b>Haiku 4.5</b> (um <span class="mono">Glob</span> mirando
+            fora de <span class="mono">/work</span>). Como o Bash está fora da
+            lista permitida, as chamadas foram
+            <b>bloqueadas — não houve vazamento real de rede</b>. A exclusão é
+            conservadora: excluímos por <b>tentativa</b>, não por sucesso. (10
+            forçadas, 6 naturais.)
+          </div>
+          <p class="sub">
+            Alguns casos especiais são reportados à parte para não distorcer os
+            números de destaque:
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Estrato</th>
+                  <th class="num">n</th>
+                  <th>O que é</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>post_cutoff_pin</td>
+                  <td class="num">3</td>
+                  <td>
+                    versão publicada <b>depois</b> do cutoff do modelo — sinal
+                    de cutoff impreciso ou contaminação;
+                  </td>
+                </tr>
+                <tr>
+                  <td>pin_was_yanked (PASS)</td>
+                  <td class="num">2</td>
+                  <td>
+                    passou no binário, mas a versão tinha sido retirada de
+                    circulação
+                  </td>
+                </tr>
+                <tr>
+                  <td>gate_disagreement</td>
+                  <td class="num">374</td>
+                  <td>
+                    o portão deu PASS, mas a instalação/import final falhou —
+                    liga diretamente ao gargalo de instalação
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── RESULTADOS · RQ1 ────────────────────────────── -->
+      <section id="rq1res">
+        <div class="sec-head">
+          <span class="sec-num">F</span>
+          <h2 class="sec-title">RQ1 — Perfil de correção</h2>
+          <span class="sec-sub"
+            >estado: Passo 1 (conhecimento paramétrico)</span
+          >
+        </div>
+
+        <div class="takeaway">
+          <b>As baselines são as réguas que tornam os números legíveis.</b> Sem
+          elas, "20% passou" não diz nada. São quatro: <b>(i) teto</b> — a mais
+          nova que o modelo poderia conhecer; <b>(ii) resolvedor padrão</b> — o
+          que sairia sem nenhuma restrição; <b>(iii) pin do desenvolvedor</b> —
+          referência humana real, não teto; <b>(iv) piso</b> — uma versão
+          aleatória pré-cutoff. As três primeiras resolvem a 100%; o destaque é
+          comparar o modelo com o pin humano.
+        </div>
+
+        <div class="res-block">
+          <h3>Vetor de correção por modelo (forçada · Passo 1)</h3>
+          <p class="sub">
+            O <b>passe binário</b> (resolve ∧ instala ∧ importa ∧ seguro) fica
+            em <b>14–25%</b>. Mas note: <b>resolvable</b> e <b>secure</b> são
+            altos — o que derruba o binário é a <b>instalação</b> (~21–27%).
+            "miss" = execuções em que aquele componente não pôde ser medido.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">binário</th>
+                  <th class="num">resolvable</th>
+                  <th class="num">installs</th>
+                  <th class="num">imports</th>
+                  <th class="num">secure@cutoff</th>
+                  <th class="num">lag (mediana)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">15/105 = 0.143</td>
+                  <td class="num">71/105 = 0.676</td>
+                  <td class="num">22/105 = 0.210</td>
+                  <td class="num">15/22 = 0.682</td>
+                  <td class="num">63/71 = 0.887</td>
+                  <td class="num">6.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">24/97 = 0.247</td>
+                  <td class="num">92/97 = 0.948</td>
+                  <td class="num">26/97 = 0.268</td>
+                  <td class="num">26/26 = 1.000</td>
+                  <td class="num">81/92 = 0.880</td>
+                  <td class="num">7.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">22/105 = 0.210</td>
+                  <td class="num">99/105 = 0.943</td>
+                  <td class="num">28/105 = 0.267</td>
+                  <td class="num">25/28 = 0.893</td>
+                  <td class="num">82/99 = 0.828</td>
+                  <td class="num">9.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">24/108 = 0.222</td>
+                  <td class="num">106/108 = 0.981</td>
+                  <td class="num">26/108 = 0.241</td>
+                  <td class="num">24/26 = 0.923</td>
+                  <td class="num">93/106 = 0.877</td>
+                  <td class="num">9.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">24/108 = 0.222</td>
+                  <td class="num">99/108 = 0.917</td>
+                  <td class="num">28/108 = 0.259</td>
+                  <td class="num">25/28 = 0.893</td>
+                  <td class="num">86/99 = 0.869</td>
+                  <td class="num">4.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">23/108 = 0.213</td>
+                  <td class="num">103/108 = 0.954</td>
+                  <td class="num">29/108 = 0.269</td>
+                  <td class="num">23/29 = 0.793</td>
+                  <td class="num">85/103 = 0.825</td>
+                  <td class="num">8.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap">
+            lag = defasagem em nº de releases até a mais recente pré-cutoff.
+          </p>
+        </div>
+
+        <div class="res-block">
+          <h3>Modelo vs. baselines (resolvável ∧ seguro · Passo 1)</h3>
+          <p class="sub">
+            Removendo a instalação da conta, o modelo fica
+            <b>na faixa do pin do desenvolvedor humano</b> — em vários casos
+            empata ou supera.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">modelo (resolv. ∧ seguro)</th>
+                  <th class="num">pin do desenvolvedor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">63/105 = 0.600</td>
+                  <td class="num">89/107 = 0.832</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">81/97 = 0.835</td>
+                  <td class="num">85/99 = 0.859</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">82/105 = 0.781</td>
+                  <td class="num">87/108 = 0.806</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">93/108 = 0.861</td>
+                  <td class="num">90/108 = 0.833</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">86/108 = 0.796</td>
+                  <td class="num">90/108 = 0.833</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">85/108 = 0.787</td>
+                  <td class="num">84/108 = 0.778</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Limitação: a instalação roda em Python 3.11</h3>
+          <div class="takeaway warn">
+            A baixa taxa de instalação (~25%) é o gargalo do passe binário — e
+            é, em parte, um <b>artefato do ambiente</b>.
+            <b>8 das 36 âncoras</b> (todas do Home Assistant, que exige
+            <span class="mono">requires-python ≥ 3.13</span>)
+            <b>nunca instalam no contêiner 3.11</b>: 0 de 143 tentativas.
+            Excluindo essas 8 âncoras, a instalação sobe de
+            <b>25,0% → 32,1%</b> (forçada · Passo 1). É um confound real e
+            mensurável — mas a instalação continua sendo o principal modo de
+            falha mesmo sem elas; não é a única causa.
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Comparação com o desenvolvedor humano (forçada · Passo 1)</h3>
+          <p class="sub">
+            Os modelos tendem a escolher uma versão <b>mais nova</b> que a do
+            desenvolvedor (345 de 570 comparáveis). E o próprio humano fixou uma
+            versão vulnerável em 15–22% dos casos — enquanto o modelo fica
+            seguro no cutoff em 83–90%.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">igual</th>
+                  <th class="num">mais nova</th>
+                  <th class="num">mais antiga</th>
+                  <th class="num">pin dev vulnerável@cutoff</th>
+                  <th class="num">modelo seguro@cutoff</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">9</td>
+                  <td class="num">45</td>
+                  <td class="num">17</td>
+                  <td class="num">24/143 = 0.168</td>
+                  <td class="num">85/95 = 0.895</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">24</td>
+                  <td class="num">56</td>
+                  <td class="num">12</td>
+                  <td class="num">20/129 = 0.155</td>
+                  <td class="num">102/116 = 0.879</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">33</td>
+                  <td class="num">50</td>
+                  <td class="num">16</td>
+                  <td class="num">28/144 = 0.194</td>
+                  <td class="num">111/130 = 0.854</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">25</td>
+                  <td class="num">68</td>
+                  <td class="num">13</td>
+                  <td class="num">24/144 = 0.167</td>
+                  <td class="num">122/139 = 0.878</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">26</td>
+                  <td class="num">63</td>
+                  <td class="num">10</td>
+                  <td class="num">24/144 = 0.167</td>
+                  <td class="num">115/132 = 0.871</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">34</td>
+                  <td class="num">63</td>
+                  <td class="num">6</td>
+                  <td class="num">32/144 = 0.222</td>
+                  <td class="num">113/136 = 0.831</td>
+                </tr>
+                <tr class="tot">
+                  <td>total</td>
+                  <td class="num">151</td>
+                  <td class="num">345</td>
+                  <td class="num">74</td>
+                  <td class="num">—</td>
+                  <td class="num">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── RESULTADOS · RQ2 (HEADLINE) ─────────────────── -->
+      <section id="rq2res">
+        <div class="sec-head">
+          <span class="sec-num">G</span>
+          <h2 class="sec-title">RQ2 — Reparo sob crítica</h2>
+          <span class="sec-sub">o achado central do piloto</span>
+        </div>
+
+        <div class="takeaway head">
+          <b>Achado central:</b> diante de uma crítica <b>falsa</b> sobre um pin
+          que estava <b>comprovadamente correto</b>, o modelo troca a versão em
+          <b>99,2%</b> dos casos — contra <b>62,5%</b> sob uma dúvida neutra. A
+          diferença, <b>+0,367</b> (Newcombe 95% CI [0,306, 0,428]), é evidência
+          limpa de <b>bajulação</b>: o modelo cede a uma alegação de autoridade
+          mesmo quando ela é falsa, e o vetor <b>não melhora</b> (0%).
+        </div>
+
+        <div class="res-block">
+          <h3>Comparação controlada (sobre pins que PASSARAM)</h3>
+          <p class="sub">
+            Mesmo evento — uma segunda mensagem — diferindo só no valor-verdade.
+            A crítica enganosa é <b>idêntica</b> à dirigida; muda apenas que ela
+            é enviada a um pin que o verificador provou estar seguro.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Crítica</th>
+                  <th class="num">n</th>
+                  <th class="num">trocou o pin (correção falsa)</th>
+                  <th class="num">vetor melhorou</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>enganosa</td>
+                  <td class="num">236</td>
+                  <td class="num">234/236 = 0.992</td>
+                  <td class="num">0/236 = 0.000</td>
+                </tr>
+                <tr>
+                  <td>neutra</td>
+                  <td class="num">253</td>
+                  <td class="num">158/253 = 0.625</td>
+                  <td class="num">1/253 = 0.004</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap">
+            diferença enganosa − neutra: <b>+0,367</b> (Newcombe 95% CI [0,306,
+            0,428]).
+          </p>
+        </div>
+
+        <div class="res-block">
+          <h3>Por braço × classe de falha</h3>
+          <p class="sub">
+            A autocorreção genuína (dirigida, sobre falhas reais) é modesta: 29%
+            para vulnerável, 60% para spec irresolúvel. A obediência cega
+            (trocar mesmo quando o pin estava certo) é a regra sob a enganosa.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Braço</th>
+                  <th>Classe (no portão)</th>
+                  <th class="num">n</th>
+                  <th class="num">trocou pin</th>
+                  <th class="num">correção genuína</th>
+                  <th class="num">correção falsa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>dirigida</td>
+                  <td>outdated + vulnerável</td>
+                  <td class="num">31</td>
+                  <td class="num">31/31 = 1.000</td>
+                  <td class="num">9/31 = 0.290</td>
+                  <td class="num">—</td>
+                </tr>
+                <tr>
+                  <td>dirigida</td>
+                  <td>spec irresolúvel</td>
+                  <td class="num">20</td>
+                  <td class="num">20/20 = 1.000</td>
+                  <td class="num">12/20 = 0.600</td>
+                  <td class="num">—</td>
+                </tr>
+                <tr>
+                  <td>enganosa</td>
+                  <td>outdated</td>
+                  <td class="num">214</td>
+                  <td class="num">213/214 = 0.995</td>
+                  <td class="num">—</td>
+                  <td class="num">213/214 = 0.995</td>
+                </tr>
+                <tr>
+                  <td>enganosa</td>
+                  <td>pass</td>
+                  <td class="num">22</td>
+                  <td class="num">21/22 = 0.955</td>
+                  <td class="num">—</td>
+                  <td class="num">21/22 = 0.955</td>
+                </tr>
+                <tr>
+                  <td>neutra</td>
+                  <td>outdated</td>
+                  <td class="num">224</td>
+                  <td class="num">143/224 = 0.638</td>
+                  <td class="num">—</td>
+                  <td class="num">143/224 = 0.638</td>
+                </tr>
+                <tr>
+                  <td>neutra</td>
+                  <td>outdated + vulnerável</td>
+                  <td class="num">49</td>
+                  <td class="num">23/49 = 0.469</td>
+                  <td class="num">2/49 = 0.041</td>
+                  <td class="num">—</td>
+                </tr>
+                <tr>
+                  <td>neutra</td>
+                  <td>pass</td>
+                  <td class="num">29</td>
+                  <td class="num">15/29 = 0.517</td>
+                  <td class="num">—</td>
+                  <td class="num">15/29 = 0.517</td>
+                </tr>
+                <tr>
+                  <td>neutra</td>
+                  <td>spec irresolúvel</td>
+                  <td class="num">22</td>
+                  <td class="num">19/22 = 0.864</td>
+                  <td class="num">11/22 = 0.500</td>
+                  <td class="num">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap">
+            638 forçadas · 611 analisadas (19 escaladas, 1 com falha de etapa,
+            não analisadas).
+          </p>
+        </div>
+      </section>
+
+      <!-- ── RESULTADOS · RQ3 ────────────────────────────── -->
+      <section id="rq3res">
+        <div class="sec-head">
+          <span class="sec-num">H</span>
+          <h2 class="sec-title">RQ3 — Diferenças entre modelos</h2>
+          <span class="sec-sub">descritiva · um contraste pré-registrado</span>
+        </div>
+
+        <div class="res-block">
+          <h3>Perfil por modelo (Passo 1)</h3>
+          <p class="sub">
+            O passe binário é parecido entre modelos (14–24%). A defasagem em
+            dias cresce com gerações de cutoff mais antigo no calendário de
+            releases — o Opus 4.7 acumula a maior defasagem temporal mediana.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">passe binário</th>
+                  <th class="num">lag (releases)</th>
+                  <th class="num">lag (dias)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">20/140 = 0.143</td>
+                  <td class="num">4.0</td>
+                  <td class="num">229.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">31/127 = 0.244</td>
+                  <td class="num">6.5</td>
+                  <td class="num">256.5</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">29/139 = 0.209</td>
+                  <td class="num">8.0</td>
+                  <td class="num">472.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">31/144 = 0.215</td>
+                  <td class="num">8.0</td>
+                  <td class="num">408.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">32/144 = 0.222</td>
+                  <td class="num">4.0</td>
+                  <td class="num">405.5</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">30/144 = 0.208</td>
+                  <td class="num">7.5</td>
+                  <td class="num">630.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap">
+            Ordenação por taxa de passe na geração 4.5: sonnet &gt; opus &gt;
+            haiku.
+          </p>
+        </div>
+
+        <div class="res-block">
+          <h3>Contraste pré-registrado: Opus 4.5 vs Opus 4.6</h3>
+          <div class="takeaway">
+            Único par que isola a <b>geração</b> mantendo o cutoff fixo (ambos
+            maio/2025). Sobre 36 âncoras pareadas:
+            <b>McNemar p = 1,0, OR = 1,0</b> —
+            <b>nenhuma diferença geracional detectável</b> no passe binário.
+            (tabela: ambos passam 7 · A passa/B falha 1 · A falha/B passa 1 ·
+            ambos falham 27.)
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Estabilidade (variância intra-célula · forçada)</h3>
+          <p class="sub">
+            Fração das células (âncora × modelo) em que as 3 repetições
+            <b>discordam</b> de classe de falha. Quanto menor, mais consistente
+            o modelo. O Haiku é o mais ruidoso; o Opus 4.6, o mais estável.
+          </p>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">células</th>
+                  <th class="num">instáveis</th>
+                  <th class="num">proporção</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">36</td>
+                  <td class="num">18</td>
+                  <td class="num">0.500</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">33</td>
+                  <td class="num">7</td>
+                  <td class="num">0.212</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">35</td>
+                  <td class="num">6</td>
+                  <td class="num">0.171</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">36</td>
+                  <td class="num">3</td>
+                  <td class="num">0.083</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">36</td>
+                  <td class="num">2</td>
+                  <td class="num">0.056</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">36</td>
+                  <td class="num">7</td>
+                  <td class="num">0.194</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cap">
+            κ de concordância da auditoria: pendente (dupla codificação).
+          </p>
+        </div>
+      </section>
+
+      <!-- ── RESULTADOS · CONDIÇÃO NATURAL ───────────────── -->
+      <section id="natres">
+        <div class="sec-head">
+          <span class="sec-num">I</span>
+          <h2 class="sec-title">Condição natural</h2>
+          <span class="sec-sub">exploratória · sem crítica</span>
+        </div>
+
+        <div class="takeaway">
+          Quando livre para versionar como quiser, o modelo
+          <b>ainda fixa uma versão exata em 77,3%</b> das vezes (160 de 207) — a
+          propensão a fixar é forte mesmo sem ser exigida. A defasagem mediana é
+          menor que na forçada.
+        </div>
+
+        <div class="res-block">
+          <h3>Forma do constraint escolhido</h3>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">total</th>
+                  <th class="num">exato</th>
+                  <th class="num">faixa</th>
+                  <th class="num">nenhum</th>
+                  <th class="num">taxa exato</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">35</td>
+                  <td class="num">24</td>
+                  <td class="num">7</td>
+                  <td class="num">4</td>
+                  <td class="num">0.686</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">30</td>
+                  <td class="num">25</td>
+                  <td class="num">4</td>
+                  <td class="num">1</td>
+                  <td class="num">0.833</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">34</td>
+                  <td class="num">25</td>
+                  <td class="num">4</td>
+                  <td class="num">5</td>
+                  <td class="num">0.735</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">36</td>
+                  <td class="num">27</td>
+                  <td class="num">6</td>
+                  <td class="num">3</td>
+                  <td class="num">0.750</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">36</td>
+                  <td class="num">29</td>
+                  <td class="num">5</td>
+                  <td class="num">2</td>
+                  <td class="num">0.806</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">36</td>
+                  <td class="num">30</td>
+                  <td class="num">4</td>
+                  <td class="num">2</td>
+                  <td class="num">0.833</td>
+                </tr>
+                <tr class="tot">
+                  <td>geral</td>
+                  <td class="num">207</td>
+                  <td class="num">160</td>
+                  <td class="num">30</td>
+                  <td class="num">17</td>
+                  <td class="num">0.773</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="res-block">
+          <h3>Vetor de correção (natural · Passo 1 = final)</h3>
+          <div class="rtable">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th class="num">n</th>
+                  <th class="num">binário</th>
+                  <th class="num">resolvable</th>
+                  <th class="num">secure@cutoff</th>
+                  <th class="num">lag (mediana)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mdl">Haiku 4.5</td>
+                  <td class="num">36</td>
+                  <td class="num">5/35 = 0.143</td>
+                  <td class="num">24/35 = 0.686</td>
+                  <td class="num">22/24 = 0.917</td>
+                  <td class="num">1.5</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.5</td>
+                  <td class="num">30</td>
+                  <td class="num">7/30 = 0.233</td>
+                  <td class="num">24/30 = 0.800</td>
+                  <td class="num">21/24 = 0.875</td>
+                  <td class="num">4.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Sonnet 4.6</td>
+                  <td class="num">36</td>
+                  <td class="num">7/34 = 0.206</td>
+                  <td class="num">31/34 = 0.912</td>
+                  <td class="num">29/31 = 0.935</td>
+                  <td class="num">4.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.5</td>
+                  <td class="num">36</td>
+                  <td class="num">7/36 = 0.194</td>
+                  <td class="num">33/36 = 0.917</td>
+                  <td class="num">29/33 = 0.879</td>
+                  <td class="num">2.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.6</td>
+                  <td class="num">36</td>
+                  <td class="num">8/36 = 0.222</td>
+                  <td class="num">33/36 = 0.917</td>
+                  <td class="num">29/33 = 0.879</td>
+                  <td class="num">3.0</td>
+                </tr>
+                <tr>
+                  <td class="mdl">Opus 4.7</td>
+                  <td class="num">36</td>
+                  <td class="num">7/36 = 0.194</td>
+                  <td class="num">33/36 = 0.917</td>
+                  <td class="num">28/33 = 0.848</td>
+                  <td class="num">6.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- ── RODAPÉ ──────────────────────────────────────── -->
       <div class="foot">
         <div class="blk">
           <h5>Escopo (P1)</h5>
           <p>
-            Python / PyPI · 6 modelos Claude · uma versão de CLI · repositórios
-            OSS populares pré-2025. Enquadrado como estudo-piloto de medição com
-            artefato. Alvo: A3/A4 (SANER, ICSME, MSR, EMSE).
+            Python / PyPI · 6 modelos Claude (Haiku a Opus, gerações 4.5–4.7) ·
+            14 repositórios OSS · 36 âncoras · Claude Code 2.1.173. Elicitação
+            em Python 3.13; instalação e teste em Python 3.11.
           </p>
         </div>
         <div class="blk">
-          <h5>Baselines</h5>
+          <h5>Integridade &amp; pré-registro</h5>
           <p>
-            (i) "a mais nova que o modelo conhece" (teto); (ii) sem pin /
-            resolvedor padrão; (iii) pin do desenvolvedor humano (referência,
-            não teto); (iv) opcional, versão aleatória pré-cutoff (piso).
+            Pré-registro depositado (OSF); hash das âncoras verificado de ponta
+            a ponta; exclusões (contaminação, fallback de modelo,
+            inelegibilidade) definidas de antemão, não após ver os números.
           </p>
         </div>
         <div class="blk">
@@ -1064,9 +2235,7 @@
         </div>
       </div>
 
-      <p class="stamp">
-        Fluxograma da pesquisa · pós-revisão metodológica · pt-BR
-      </p>
+      <p class="stamp">Fluxograma da pesquisa · piloto com resultados</p>
     </div>
   </body>
 </html>
